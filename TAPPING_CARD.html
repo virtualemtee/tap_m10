@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>M-10 Form</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Navigation Buttons -->
+    <div class="navigation">
+        <button id="cell-lines-btn">Cell Lines</button>
+        <button id="cast-house-btn">CastHouse</button>
+    </div>
+
+    <!-- Cell Lines Section -->
+    <div class="form-container" id="cell-lines-section">
+        <h1>M - 10</h1>
+        <h2>MAPS TAP CARD</h2>
+        <div class="header-section">
+            <div class="field-group">
+                <label>Badge No.</label>
+                <input type="text" id="badge-no">
+            </div>
+            <div class="field-group">
+                <label>Cast Number</label>
+                <input type="text" id="cast-number">
+            </div>
+            <div class="small-fields">
+                <div>
+                    <label>Line</label>
+                    <input type="text" id="line">
+                </div>
+                <div>
+                    <label>Room</label>
+                    <input type="text" id="room">
+                </div>
+                <div>
+                    <label>Cruce Number</label>
+                    <input type="text" id="cruce-number">
+                </div>
+            </div>
+            <div class="maps-tap-card">
+                <label>Select Shift</label>
+                <div class="maps-codes">
+                    <button type="button" id="grave-btn" class="shift-btn">Grave</button>
+                    <button type="button" id="day-btn" class="shift-btn">Day</button>
+                    <button type="button" id="swing-btn" class="shift-btn">Swing</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="potted-section">
+            <label>Pots Tapped</label>
+            <div class="pot-fields">
+                <input type="text" id="pot-1">
+                <input type="text" id="pot-2"><br>
+                <input type="text" id="pot-3">
+                <input type="text" id="pot-4">
+            </div>
+        </div>
+
+        <div class="alloy-grade-section">
+            <label>Grade of Alloy</label>
+            <div class="alloy-table">
+                <div class="header">Al</div>
+                <div class="header">Si</div>
+                <div class="header">Fe</div>
+                <div class="header">Cu</div>
+                
+                <input type="text" id="alloy-al">
+                <input type="text" id="alloy-si">
+                <input type="text" id="alloy-fe">
+                <input type="text" id="alloy-cu">
+            </div>
+        </div>
+
+        <div class="weight-section">
+            <label>Call Weight</label>
+            <input type="text" id="call-weight">
+        </div>
+        <div class="weight-section">
+            <label>Gross Weight</label>
+            <input type="text" id="gross-weight">
+        </div>
+        <div class="weight-section">
+            <label>Tare Weight</label>
+            <input type="text" id="tare-weight">
+        </div>
+
+        <!-- Submit Button -->
+        <div class="submit-section">
+            <button id="submit-btn">Submit</button>
+        </div>
+    </div>
+
+    <!-- CastHouse Section (hidden initially) -->
+    <div class="form-container" id="cast-house-section" style="display:none;">
+        <h1>CastHouse Data</h1>
+        <table id="data-table" border="1">
+            <thead>
+                <tr>
+                    <th>Badge No.</th>
+                    <th>Cast Number</th>
+                    <th>Line</th>
+                    <th>Room</th>
+                    <th>Cruce Number</th>
+                    <th>Shift</th>
+                    <th>Pots Tapped</th>
+                    <th>Alloy Grades (Al, Si, Fe, Cu)</th>
+                    <th>Call Weight</th>
+                    <th>Gross Weight</th>
+                    <th>Tare Weight</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Data will be dynamically added here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
