@@ -1,6 +1,17 @@
+// GitHub API Variables
+const repo = 'virtualemtee/tap_m10'; // repo name
+const filePath = 'data.json'; // The JSON file in your GitHub repository
+const token = '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'; 
+
 // Global Variables
 let selectedShift = "";
-let dataArray = JSON.parse(localStorage.getItem('castHouseData')) || []; // Load data from localStorage
+let dataArray = [];
+
+// Fetch data from GitHub when the page loads
+document.addEventListener('DOMContentLoaded', async () => {
+    dataArray = await getDataFromGitHub();
+    loadTableData(); // Load the data into tables
+});
 
 // Event listeners for navigation
 document.getElementById('cell-lines-btn').addEventListener('click', () => {
@@ -24,7 +35,7 @@ document.querySelectorAll('.shift-btn').forEach(button => {
 });
 
 // Submit form data
-document.getElementById('submit-btn').addEventListener('click', () => {
+document.getElementById('submit-btn').addEventListener('click', async () => {
     const badgeNo = document.getElementById('badge-no').value.trim();
     const castNumber = document.getElementById('cast-number').value.trim();
     const line = document.getElementById('line').value.trim().toLowerCase();
@@ -55,9 +66,11 @@ document.getElementById('submit-btn').addEventListener('click', () => {
         callWeight, grossWeight, tareWeight
     };
 
-    // Add data to array and localStorage
+    // Add data to array
     dataArray.push(formData);
-    localStorage.setItem('castHouseData', JSON.stringify(dataArray));
+
+    // Save updated data to GitHub
+    await saveDataToGitHub(dataArray);
     
     alert("Data Submitted!");
 
@@ -78,6 +91,8 @@ document.getElementById('submit-btn').addEventListener('click', () => {
     document.getElementById('alloy-cu').value = '';
     selectedShift = '';
     document.querySelectorAll('.shift-btn').forEach(btn => btn.classList.remove('active'));
+
+    loadTableData(); // Reload table with updated data
 });
 
 // Load saved data into the CastHouse tables
@@ -143,3 +158,64 @@ document.getElementById('save-btn').addEventListener('click', () => {
     a.click();
     URL.revokeObjectURL(url);
 });
+
+// --- GitHub API Functions ---
+
+// Fetch data from GitHub
+async function getDataFromGitHub() {
+    const response = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `token ${token}`
+        }
+    });
+
+    if (response.ok) {
+        const file = await response.json();
+        const content = atob(file.content); // Decode Base64 content
+        return JSON.parse(content); // Return parsed JSON
+    } else {
+        console.error('Failed to retrieve data:', await response.json());
+        return []; // Return an empty array if no data is found
+    }
+}
+
+// Save data to GitHub
+async function saveDataToGitHub(dataArray) {
+    const content = btoa(JSON.stringify(dataArray, null, 2)); // Convert data to Base64-encoded string
+    const sha = await getFileSha(); // Get file SHA if it exists
+
+    const response = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `token ${token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            message: 'Updating form data',
+            content: content,
+            sha: sha // Pass the file SHA to overwrite the file
+        })
+    });
+
+    if (!response.ok) {
+        console.error('Failed to save data:', await response.json());
+    }
+}
+
+// Get the file SHA (required for updating a file on GitHub)
+async function getFileSha() {
+    const response = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}`, {
+        method: 'GET',
+        headers: {
+            'Authorization': `token ${token}`
+        }
+    });
+
+    if (response.ok) {
+        const file = await response.json();
+        return file.sha; // Return file SHA
+    } else {
+        return null; // Return null if no file exists
+    }
+}
