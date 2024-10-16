@@ -1,6 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC_IIpwfpdoSKiNTtIeglpONUhcWD88YpA",
+            authDomain: "goiper.firebaseapp.com",
+            databaseURL: "https://goiper-default-rtdb.firebaseio.com",
+            projectId: "goiper",
+            storageBucket: "goiper.appspot.com",
+            messagingSenderId: "1037467961454",
+            appId: "1:1037467961454:web:cf9b174e7ffd0db5f83e7f",
+            measurementId: "G-MD5S9TBHLC"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M-10 Form</title>
