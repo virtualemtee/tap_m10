@@ -19,7 +19,7 @@
         <h2>MAPS TAP CARD</h2>
         <div class="header-section">
             <div class="field-group">
-                <label>Badge No.</label>
+                <label>Badge No. <span class="required">*</span></label>
                 <input type="text" id="badge-no">
             </div>
             <div class="field-group">
@@ -36,7 +36,7 @@
                     <input type="text" id="room">
                 </div>
                 <div>
-                    <label>Cruce Number</label>
+                    <label>Cruce Number <span class="required">*</span></label>
                     <input type="text" id="cruce-number">
                 </div>
             </div>
@@ -51,7 +51,7 @@
         </div>
 
         <div class="potted-section">
-            <label>Pots Tapped</label>
+            <label>Pots Tapped <span class="required">*</span></label>
             <div class="pot-fields">
                 <input type="text" id="pot-1">
                 <input type="text" id="pot-2"><br>
@@ -76,7 +76,7 @@
         </div>
 
         <div class="weight-section">
-            <label>Call Weight</label>
+            <label>Call Weight <span class="required">*</span></label>
             <input type="text" id="call-weight">
         </div>
         <div class="weight-section">
@@ -97,7 +97,16 @@
     <!-- CastHouse Section (hidden initially) -->
     <div class="form-container" id="cast-house-section" style="display:none;">
         <h1>CastHouse Data</h1>
-        <table id="data-table" border="1">
+        
+        <!-- Line 1 and Line 2 buttons -->
+        <div class="navigation">
+            <button id="line-1-btn">Line 1</button>
+            <button id="line-2-btn">Line 2</button>
+            <button id="save-btn">Save as Excel</button>
+        </div>
+
+        <!-- Line 1 Data Table -->
+        <table id="line-1-table" class="data-table" border="1" style="display:none;">
             <thead>
                 <tr>
                     <th>Badge No.</th>
@@ -114,7 +123,29 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- Data will be dynamically added here -->
+                <!-- Line 1 data will be dynamically added here -->
+            </tbody>
+        </table>
+
+        <!-- Line 2 Data Table -->
+        <table id="line-2-table" class="data-table" border="1" style="display:none;">
+            <thead>
+                <tr>
+                    <th>Badge No.</th>
+                    <th>Cast Number</th>
+                    <th>Line</th>
+                    <th>Room</th>
+                    <th>Cruce Number</th>
+                    <th>Shift</th>
+                    <th>Pots Tapped</th>
+                    <th>Alloy Grades (Al, Si, Fe, Cu)</th>
+                    <th>Call Weight</th>
+                    <th>Gross Weight</th>
+                    <th>Tare Weight</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Line 2 data will be dynamically added here -->
             </tbody>
         </table>
     </div>
