@@ -1,27 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
-
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyC_IIpwfpdoSKiNTtIeglpONUhcWD88YpA",
-            authDomain: "goiper.firebaseapp.com",
-            databaseURL: "https://goiper-default-rtdb.firebaseio.com",
-            projectId: "goiper",
-            storageBucket: "goiper.appspot.com",
-            messagingSenderId: "1037467961454",
-            appId: "1:1037467961454:web:cf9b174e7ffd0db5f83e7f",
-            measurementId: "G-MD5S9TBHLC"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M-10 Form</title>
@@ -81,33 +60,11 @@
             </div>
         </div>
 
-        <div class="alloy-grade-section">
-            <label>Grade of Alloy</label>
-            <div class="alloy-table">
-                <div class="header">Al</div>
-                <div class="header">Si</div>
-                <div class="header">Fe</div>
-                <div class="header">Cu</div>
-                
-                <input type="text" id="alloy-al">
-                <input type="text" id="alloy-si">
-                <input type="text" id="alloy-fe">
-                <input type="text" id="alloy-cu">
-            </div>
-        </div>
-
         <div class="weight-section">
             <label>Call Weight <span class="required">*</span></label>
             <input type="text" id="call-weight">
         </div>
-        <div class="weight-section">
-            <label>Gross Weight</label>
-            <input type="text" id="gross-weight">
-        </div>
-        <div class="weight-section">
-            <label>Tare Weight</label>
-            <input type="text" id="tare-weight">
-        </div>
+    
 
         <!-- Submit Button -->
         <div class="submit-section">
@@ -137,10 +94,9 @@
                     <th>Cruce Number</th>
                     <th>Shift</th>
                     <th>Pots Tapped</th>
-                    <th>Alloy Grades (Al, Si, Fe, Cu)</th>
+               
                     <th>Call Weight</th>
-                    <th>Gross Weight</th>
-                    <th>Tare Weight</th>
+                  
                 </tr>
             </thead>
             <tbody>
@@ -159,10 +115,8 @@
                     <th>Cruce Number</th>
                     <th>Shift</th>
                     <th>Pots Tapped</th>
-                    <th>Alloy Grades (Al, Si, Fe, Cu)</th>
                     <th>Call Weight</th>
-                    <th>Gross Weight</th>
-                    <th>Tare Weight</th>
+                   
                 </tr>
             </thead>
             <tbody>
@@ -171,6 +125,6 @@
         </table>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js" type="module"></script>
 </body>
 </html>
