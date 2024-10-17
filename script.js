@@ -21,6 +21,7 @@ const database = getDatabase(app);
 let selectedShift = ''; // Variable to hold the selected shift
 
 // Function to save data to Firebase
+// Function to save data to Firebase
 function saveData() {
     const badgeNo = document.getElementById('badge-no').value;
     const castNumber = document.getElementById('cast-number').value;
@@ -43,8 +44,12 @@ function saveData() {
     const grossWeight = document.getElementById('gross-weight').value;
     const tareWeight = document.getElementById('tare-weight').value;
 
-    if (badgeNo && castNumber) {
-        set(ref(database, 'formData/' + badgeNo), {
+   if (badgeNo) {
+        // Use timestamp as a unique key
+        const timestamp = Date.now();
+        const newEntryRef = ref(database, `formData/${timestamp}`);
+        set(newEntryRef,  {
+            badgeNo: badgeNo, // Store the badge number for reference
             castNumber: castNumber,
             line: line,
             room: room,
@@ -69,54 +74,8 @@ function saveData() {
     }
 }
 
-// Function to export table data to Excel or CSV
-function exportTableToExcel(format = 'xlsx') {
-    const line1Table = document.getElementById('line-1-table');
-    const line2Table = document.getElementById('line-2-table');
-    let tableData = [];
 
-    // Check which table is visible and gather its data
-    if (line1Table.style.display !== 'none') {
-        tableData = [...line1Table.querySelectorAll('tr')].map(tr => {
-            return [...tr.querySelectorAll('td, th')].map(td => td.innerText);
-        });
-    } else if (line2Table.style.display !== 'none') {
-        tableData = [...line2Table.querySelectorAll('tr')].map(tr => {
-            return [...tr.querySelectorAll('td, th')].map(td => td.innerText);
-        });
-    }
-
-    if (tableData.length === 0) {
-        alert("No data to export!");
-        return;
-    }
-
-    // Create worksheet and workbook
-    const worksheet = XLSX.utils.aoa_to_sheet(tableData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
-
-    // Export as XLSX or CSV based on format
-    if (format === 'xlsx') {
-        XLSX.writeFile(workbook, 'form_data.xlsx');
-    } else if (format === 'csv') {
-        const csvData = XLSX.utils.sheet_to_csv(worksheet);
-        const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.href = url;
-        link.setAttribute('download', 'form_data.csv');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-}
-
-// Event listeners for the export buttons
-document.getElementById('save-btn').addEventListener('click', () => exportTableToExcel('xlsx'));
-
-
-
+// Function to load data from Firebase based on selected line
 // Function to load data from Firebase based on selected line
 function loadData(selectedLine) {
     const dbRef = ref(database, 'formData/');
@@ -131,15 +90,17 @@ function loadData(selectedLine) {
                 const data = childSnapshot.val();
                 const row = `<tr>
                     <td>${childSnapshot.key}</td>
+                    <td>${data.badgeNo}</td> <!-- Display badge number -->
                     <td>${data.castNumber}</td>
                     <td>${data.line}</td>
                     <td>${data.room}</td>
                     <td>${data.cruceNumber}</td>
                     <td>${data.shift || ''}</td>
                     <td>${data.potsTapped.join(', ')}</td>
-                 
+                    <td>${JSON.stringify(data.alloyGrades)}</td>
                     <td>${data.callWeight}</td>
-              
+                    <td>${data.grossWeight}</td>
+                    <td>${data.tareWeight}</td>
                 </tr>`;
 
                 // Load data based on the selected line
@@ -157,6 +118,49 @@ function loadData(selectedLine) {
     });
 }
 
+
+// Print functionality
+document.getElementById('print-btn').addEventListener('click', function() {
+    window.print(); // Opens print dialog
+});
+
+// Save as Excel functionality
+document.getElementById('save-excel-btn').addEventListener('click', function() {
+    const table1 = document.getElementById('line-1-table');
+    const table2 = document.getElementById('line-2-table');
+    
+    if (table1.style.display !== 'none') {
+        exportTableToExcel('line-1-table', 'line1_data');
+    } else if (table2.style.display !== 'none') {
+        exportTableToExcel('line-2-table', 'line2_data');
+    }
+});
+
+// Function to export the table to an Excel file
+function exportTableToExcel(tableID, filename = '') {
+    const table = document.getElementById(tableID);
+    let downloadLink;
+    const dataType = 'application/vnd.ms-excel';
+    const tableHTML = table.outerHTML.replace(/ /g, '%20');
+    
+    // Create download link
+    downloadLink = document.createElement('a');
+    document.body.appendChild(downloadLink);
+    
+    // File name
+    filename = filename ? filename + '.xls' : 'excel_data.xls';
+    
+    // Set the download link
+    downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+    
+    // Set the file name
+    downloadLink.download = filename;
+    
+    // Trigger the download
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+}
+
 // Function to clear the form after submission
 function clearForm() {
     document.getElementById('badge-no').value = '';
@@ -168,9 +172,13 @@ function clearForm() {
     document.getElementById('pot-2').value = '';
     document.getElementById('pot-3').value = '';
     document.getElementById('pot-4').value = '';
-    
+    document.getElementById('alloy-al').value = '';
+    document.getElementById('alloy-si').value = '';
+    document.getElementById('alloy-fe').value = '';
+    document.getElementById('alloy-cu').value = '';
     document.getElementById('call-weight').value = '';
-   
+    document.getElementById('gross-weight').value = '';
+    document.getElementById('tare-weight').value = '';
 }
 
 // Event listeners for navigation buttons
