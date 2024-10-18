@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,151 +5,12 @@
     <title>M-10 Form</title>
     <link rel="stylesheet" href="styles.css">
 
-    <script type="module">
-        // Import Firebase modules
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-        import { getDatabase, ref, set, get, child, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
-
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyC_IIpwfpdoSKiNTtIeglpONUhcWD88YpA",
-            authDomain: "goiper.firebaseapp.com",
-            databaseURL: "https://goiper-default-rtdb.firebaseio.com",
-            projectId: "goiper",
-            storageBucket: "goiper.appspot.com",
-            messagingSenderId: "1037467961454",
-            appId: "1:1037467961454:web:cf9b174e7ffd0db5f83e7f",
-            measurementId: "G-MD5S9TBHLC"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-
-        // Function to save data to Firebase
-        function saveData() {
-            const badgeNo = document.getElementById('badge-no').value;
-            const castNumber = document.getElementById('cast-number').value;
-            const line = document.getElementById('line').value;
-            const room = document.getElementById('room').value;
-            const cruceNumber = document.getElementById('cruce-number').value;
-            const potsTapped = [
-                document.getElementById('pot-1').value,
-                document.getElementById('pot-2').value,
-                document.getElementById('pot-3').value,
-                document.getElementById('pot-4').value
-            ];
-            const alloyGrades = {
-                Al: document.getElementById('alloy-al').value,
-                Si: document.getElementById('alloy-si').value,
-                Fe: document.getElementById('alloy-fe').value,
-                Cu: document.getElementById('alloy-cu').value,
-            };
-            const callWeight = document.getElementById('call-weight').value;
-            const grossWeight = document.getElementById('gross-weight').value;
-            const tareWeight = document.getElementById('tare-weight').value;
-
-            if (badgeNo && castNumber) {
-                set(ref(database, 'formData/' + badgeNo), {
-                    castNumber: castNumber,
-                    line: line,
-                    room: room,
-                    cruceNumber: cruceNumber,
-                    potsTapped: potsTapped,
-                    alloyGrades: alloyGrades,
-                    callWeight: callWeight,
-                    grossWeight: grossWeight,
-                    tareWeight: tareWeight
-                })
-                .then(() => {
-                    console.log("Data saved successfully.");
-                    clearForm();
-                    loadData(); // Reload data after saving
-                })
-                .catch((error) => {
-                    console.error("Error saving data: ", error);
-                });
-            } else {
-                alert("Please fill in all fields.");
-            }
-        }
-
-        // Function to load data from Firebase
-        function loadData() {
-            const dbRef = ref(database);
-            get(child(dbRef, 'formData/'))
-                .then((snapshot) => {
-                    const line1TableBody = document.querySelector('#line-1-table tbody');
-                    const line2TableBody = document.querySelector('#line-2-table tbody');
-                    line1TableBody.innerHTML = ''; // Clear previous data
-                    line2TableBody.innerHTML = ''; // Clear previous data
-
-                    if (snapshot.exists()) {
-                        snapshot.forEach(childSnapshot => {
-                            const data = childSnapshot.val();
-                            const row = `<tr>
-                                <td>${childSnapshot.key}</td>
-                                <td>${data.castNumber}</td>
-                                <td>${data.line}</td>
-                                <td>${data.room}</td>
-                                <td>${data.cruceNumber}</td>
-                                <td>${data.shift || ''}</td>
-                                <td>${data.potsTapped.join(', ')}</td>
-                                <td>${data.alloyGrades.Al}, ${data.alloyGrades.Si}, ${data.alloyGrades.Fe}, ${data.alloyGrades.Cu}</td>
-                                <td>${data.callWeight}</td>
-                                <td>${data.grossWeight}</td>
-                                <td>${data.tareWeight}</td>
-                            </tr>`;
-
-                            // Assuming you have logic to decide which table to append to
-                            if (data.line === 'Line 1') {
-                                line1TableBody.innerHTML += row;
-                            } else {
-                                line2TableBody.innerHTML += row;
-                            }
-                        });
-                    } else {
-                        console.log("No data available.");
-                    }
-                })
-                .catch((error) => {
-                    console.error("Error loading data: ", error);
-                });
-        }
-
-        // Clear form inputs
-        function clearForm() {
-            document.getElementById('badge-no').value = '';
-            document.getElementById('cast-number').value = '';
-            document.getElementById('line').value = '';
-            document.getElementById('room').value = '';
-            document.getElementById('cruce-number').value = '';
-            document.getElementById('pot-1').value = '';
-            document.getElementById('pot-2').value = '';
-            document.getElementById('pot-3').value = '';
-            document.getElementById('pot-4').value = '';
-            document.getElementById('alloy-al').value = '';
-            document.getElementById('alloy-si').value = '';
-            document.getElementById('alloy-fe').value = '';
-            document.getElementById('alloy-cu').value = '';
-            document.getElementById('call-weight').value = '';
-            document.getElementById('gross-weight').value = '';
-            document.getElementById('tare-weight').value = '';
-        }
-
-        // Load data on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            loadData();
-            const saveButton = document.getElementById('submit-btn');
-            saveButton.addEventListener('click', saveData);
-        });
-    </script>
-</head>
+  </head>
 <body>
     <!-- Navigation Buttons -->
     <div class="navigation">
-        <button id="cell-lines-btn">Cell Lines</button>
-        <button id="cast-house-btn">Cast House</button>
+        <button id="cell-lines-btn">Tapping Card</button>
+        <button id="cast-house-btn">Tapping Report</button>
     </div>
 
     <!-- Cell Lines Section -->
@@ -160,9 +20,9 @@
         <div class="header-section">
             <div class="field-group">
               <div class="field-group">
-    <label>Badge No. <span class="required">*</span></label>
+    <label>Badge No. *</label>
     <input type="text" id="badge-no" required>
-    <div class="error-message" id="badge-error">Badge number is required</div>
+   
 </div>
 
             </div>
@@ -240,7 +100,7 @@
 
     <!-- CastHouse Section (hidden initially) -->
     <div class="form-container" id="cast-house-section" style="display:none;">
-        <h1>Cast House Data</h1>
+        <h1>Tapping Report</h1>
         
         <!-- Line 1 and Line 2 buttons -->
         <div class="navigation">
@@ -266,17 +126,18 @@
         <table id="line-1-table" class="data-table" border="1" style="display:none;">
             <thead>
                 <tr>
+    <th>SN</th>
+                    <th>Timestamp</th>
                     <th>Badge No.</th>
-                    <th>Cast Number</th>
                     <th>Line</th>
                     <th>Room</th>
                     <th>Cruce Number</th>
                     <th>Shift</th>
                     <th>Pots Tapped</th>
-                    <th>Alloy Grades (Al, Si, Fe, Cu)</th>
                     <th>Call Weight</th>
                     <th>Gross Weight</th>
                     <th>Tare Weight</th>
+                  <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -288,17 +149,18 @@
         <table id="line-2-table" class="data-table" border="1" style="display:none;">
             <thead>
                 <tr>
+                  <th>SN</th>
+                    <th>Timestamp</th>
                     <th>Badge No.</th>
-                    <th>Cast Number</th>
                     <th>Line</th>
                     <th>Room</th>
                     <th>Cruce Number</th>
                     <th>Shift</th>
                     <th>Pots Tapped</th>
-                    <th>Alloy Grades (Al, Si, Fe, Cu)</th>
                     <th>Call Weight</th>
                     <th>Gross Weight</th>
                     <th>Tare Weight</th>
+                  <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
