@@ -21,10 +21,9 @@ const database = getDatabase(app);
 let selectedShift = ''; // Variable to hold the selected shift
 
 // Function to save data to Firebase
-// Function to save data to Firebase
 function saveData() {
     const badgeNo = document.getElementById('badge-no').value;
-    const castNumber = document.getElementById('cast-number').value;
+  
     const line = document.getElementById('line').value;
     const room = document.getElementById('room').value;
     const cruceNumber = document.getElementById('cruce-number').value;
@@ -34,12 +33,7 @@ function saveData() {
         document.getElementById('pot-3').value,
         document.getElementById('pot-4').value
     ];
-    const alloyGrades = {
-        Al: document.getElementById('alloy-al').value,
-        Si: document.getElementById('alloy-si').value,
-        Fe: document.getElementById('alloy-fe').value,
-        Cu: document.getElementById('alloy-cu').value,
-    };
+   const castNumber = document.getElementById('cast-number').value || '';
     const callWeight = document.getElementById('call-weight').value;
     const grossWeight = document.getElementById('gross-weight').value;
     const tareWeight = document.getElementById('tare-weight').value;
@@ -49,13 +43,13 @@ function saveData() {
         const timestamp = Date.now();
         const newEntryRef = ref(database, `formData/${timestamp}`);
         set(newEntryRef,  {
-            badgeNo: badgeNo, // Store the badge number for reference
-            castNumber: castNumber,
+          time:timestamp,
+            badgeNo: badgeNo, 
             line: line,
             room: room,
             cruceNumber: cruceNumber,
             potsTapped: potsTapped,
-            alloyGrades: alloyGrades,
+            
             callWeight: callWeight,
             grossWeight: grossWeight,
             tareWeight: tareWeight,
@@ -70,7 +64,7 @@ function saveData() {
             console.error("Error saving data: ", error);
         });
     } else {
-        alert("Please fill in all fields.");
+        alert("Please fill in required");
     }
 }
 
@@ -84,23 +78,30 @@ function loadData(selectedLine) {
         const line2TableBody = document.getElementById('line-2-table').querySelector('tbody');
         line1TableBody.innerHTML = '';
         line2TableBody.innerHTML = '';
+      let index = 1;
+      
 
         if (snapshot.exists()) {
             snapshot.forEach((childSnapshot) => {
                 const data = childSnapshot.val();
+              
+                 const formattedTime = new Date(data.time).toLocaleString();
                 const row = `<tr>
-                    <td>${childSnapshot.key}</td>
+                <td>${index}</td>
+                    <td>${formattedTime}</td>
                     <td>${data.badgeNo}</td> <!-- Display badge number -->
-                    <td>${data.castNumber}</td>
                     <td>${data.line}</td>
                     <td>${data.room}</td>
                     <td>${data.cruceNumber}</td>
                     <td>${data.shift || ''}</td>
                     <td>${data.potsTapped.join(', ')}</td>
-                    <td>${JSON.stringify(data.alloyGrades)}</td>
+                  
                     <td>${data.callWeight}</td>
                     <td>${data.grossWeight}</td>
                     <td>${data.tareWeight}</td>
+                    <td>
+                       <button class="edit-btn" data-id="${childSnapshot.key}">Edit</button>
+        <button class="delete-btn" data-id="${childSnapshot.key}">Delete</button></td>
                 </tr>`;
 
                 // Load data based on the selected line
@@ -108,8 +109,10 @@ function loadData(selectedLine) {
                     line1TableBody.innerHTML += row;
                 } else if (selectedLine === "2" && data.line === "2") {
                     line2TableBody.innerHTML += row;
-                }
+                }       index++;
+              
             });
+    addTableEventListeners();
         } else {
             console.log("No data available.");
         }
@@ -117,6 +120,114 @@ function loadData(selectedLine) {
         console.error("Error loading data: ", error);
     });
 }
+
+// Function to handle edit and delete actions
+function addTableEventListeners() {
+    const editButtons = document.querySelectorAll('.edit-btn');
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+
+    // Edit button handler
+    editButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const entryId = this.getAttribute('data-id');
+            editEntry(entryId);
+        });
+    });
+
+    // Delete button handler
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const entryId = this.getAttribute('data-id');
+            deleteEntry(entryId);
+        });
+    });
+}
+
+// Function to edit an entry
+function editEntry(entryId) {
+    const entryRef = ref(database, `formData/${entryId}`);
+    get(entryRef).then((snapshot) => {
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+
+            // Populate form fields with the existing data
+            document.getElementById('badge-no').value = data.badgeNo;
+            document.getElementById('line').value = data.line;
+            document.getElementById('room').value = data.room;
+            document.getElementById('cruce-number').value = data.cruceNumber;
+            document.getElementById('pot-1').value = data.potsTapped[0];
+            document.getElementById('pot-2').value = data.potsTapped[1];
+            document.getElementById('pot-3').value = data.potsTapped[2];
+            document.getElementById('pot-4').value = data.potsTapped[3];
+            document.getElementById('call-weight').value = data.callWeight;
+            document.getElementById('gross-weight').value = data.grossWeight;
+            document.getElementById('tare-weight').value = data.tareWeight;
+
+            selectedShift = data.shift;
+
+            // Modify saveData to update instead of create a new entry
+            document.getElementById('submit-btn').onclick = function () {
+                updateEntry(entryId);
+            };
+        } else {
+            console.log("No data found for this entry.");
+        }
+    }).catch((error) => {
+        console.error("Error editing entry: ", error);
+    });
+}
+
+// Function to update an entry
+function updateEntry(entryId) {
+    const badgeNo = document.getElementById('badge-no').value;
+    const line = document.getElementById('line').value;
+    const room = document.getElementById('room').value;
+    const cruceNumber = document.getElementById('cruce-number').value;
+    const potsTapped = [
+        document.getElementById('pot-1').value,
+        document.getElementById('pot-2').value,
+        document.getElementById('pot-3').value,
+        document.getElementById('pot-4').value
+    ];
+    const callWeight = document.getElementById('call-weight').value;
+    const grossWeight = document.getElementById('gross-weight').value;
+    const tareWeight = document.getElementById('tare-weight').value;
+
+    const entryRef = ref(database, `formData/${entryId}`);
+
+    set(entryRef, {
+        time: Date.now(),  // Update time on save
+        badgeNo: badgeNo,
+        line: line,
+        room: room,
+        cruceNumber: cruceNumber,
+        potsTapped: potsTapped,
+        callWeight: callWeight,
+        grossWeight: grossWeight,
+        tareWeight: tareWeight,
+        shift: selectedShift
+    }).then(() => {
+        console.log("Data updated successfully.");
+        clearForm();
+        loadData();  // Reload data after saving
+    }).catch((error) => {
+        console.error("Error updating entry: ", error);
+    });
+}
+
+// Function to delete an entry
+function deleteEntry(entryId) {
+    const entryRef = ref(database, `formData/${entryId}`);
+    if (confirm('Are you sure you want to delete this entry?')) {
+        set(entryRef, null).then(() => {
+            console.log("Entry deleted successfully.");
+            loadData(); // Reload data after deletion
+        }).catch((error) => {
+            console.error("Error deleting entry: ", error);
+        });
+    }
+}
+
 
 
 // Print functionality
