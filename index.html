@@ -40,7 +40,10 @@
             border: 1px solid #ccc;
             border-radius: 3px;
         }
-     
+        #loader {
+            display: none;
+            /* Add loader styling if necessary */
+        }
     </style>
     <script>
         // Prevent right-click context menu
@@ -60,11 +63,11 @@
         <h1>MAPS</h1>
         <div class="form-group">
             <label for="badgeNo">Badge Number</label>
-            <input type="text" id="badgeNo" placeholder="Enter badge number" required>
+            <input type="text" id="badgeNo" placeholder="Enter badge number" required autocomplete="off">
         </div>
         <div class="form-group">
             <label for="dateInput">Date</label>
-            <input type="date" id="dateInput" required>
+            <input type="date" id="dateInput" required autocomplete="off">
         </div>
         <div class="form-group">
             <label for="dropdown">Department</label>
@@ -110,27 +113,7 @@
         <div class="loader-inner"></div>
     </div>
 
-    <script type="module">
-        // Import Firebase modules
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
-
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyC_IIpwfpdoSKiNTtIeglpONUhcWD88YpA",
-            authDomain: "goiper.firebaseapp.com",
-            databaseURL: "https://goiper-default-rtdb.firebaseio.com",
-            projectId: "goiper",
-            storageBucket: "goiper.appspot.com",
-            messagingSenderId: "1037467961454",
-            appId: "1:1037467961454:web:cf9b174e7ffd0db5f83e7f",
-            measurementId: "G-MD5S9TBHLC"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-
+    <script>
         // Show/hide line and room dropdowns based on department selection
         const departmentSelect = document.getElementById('dropdown');
         const lineGroup = document.getElementById('line-group');
@@ -150,56 +133,69 @@
         });
 
         document.getElementById('continue-btn').addEventListener('click', () => {
-    const badgeNo = document.getElementById('badgeNo').value.trim();
-    const dateInput = document.getElementById('dateInput').value;
-    const department = document.getElementById('dropdown').value; // Get selected department
-    const selectedLine = document.getElementById('lineSelect').value; // Get selected line
-    const selectedRoom = document.getElementById('roomSelect').value; // Get selected room
-    const selectedShift = document.getElementById('shiftSelect').value; // Get selected shift
+            const badgeNo = document.getElementById('badgeNo').value.trim();
+            const dateInput = document.getElementById('dateInput').value;
+            const department = document.getElementById('dropdown').value; // Get selected department
+            const selectedLine = document.getElementById('lineSelect').value; // Get selected line
+            const selectedRoom = document.getElementById('roomSelect').value; // Get selected room
+            const selectedShift = document.getElementById('shiftSelect').value; // Get selected shift
 
-    // Check if the badge number is ADMIN_CL
-    if (badgeNo === 'ADMIN_CL') {
-        window.location.href = 'activeCruces.html'; // Redirect to activeCruces.html
-        return; // No further validation needed
-    }
+            // Check if the badge number is ADMIN_CL
+            if (badgeNo === 'ADMIN_CL') {
+                window.location.href = 'activeCruces.html'; // Redirect to activeCruces.html
+                return; // No further validation needed
+            }
 
-    // Validate input for non-admin users
-    if (badgeNo === '' || dateInput === '' || department === '') {
-        alert("Please fill in all fields and select a department to proceed.");
-        return;
-    }
+            // Validate input for non-admin users
+            if (badgeNo === '' || dateInput === '' || department === '') {
+                alert("Please fill in all fields and select a department to proceed.");
+                return;
+            }
 
-    if (department === "Cell Lines" && (selectedLine === '' || selectedRoom === '' || selectedShift === '')) {
-        alert("Please select a line, room, and shift to proceed.");
-        return;
-    }
+            if (department === "Cell Lines" && (selectedLine === '' || selectedRoom === '' || selectedShift === '')) {
+                alert("Please select a line, room, and shift to proceed.");
+                return;
+            }
 
-    // Show loader and make page inactive
-    document.getElementById('loader').style.display = 'flex';
+            // Show loader (if needed)
+            document.getElementById('loader').style.display = 'flex';
 
-    // Create a reference for the date in Firebase
-    const dbRef = ref(database, `${dateInput}`);
+            // Store data in local storage
+            const formData = {
+                badgeNo: badgeNo,
+                date: dateInput,
+                department: department,
+                line: selectedLine,
+                room: selectedRoom,
+                shift: selectedShift
+            };
+            localStorage.setItem('formData', JSON.stringify(formData));
 
-    // Send the data to Firebase
-    set(dbRef, {
-        badgeNo: badgeNo,
-        department: department,
-        line: selectedLine, // Save the selected line
-        room: selectedRoom, // Save the selected room
-        selectedShift: selectedShift
-    }).then(() => {
-        // Redirect based on selected department
-        if (department === "Cell Lines") {
-            window.location.href = `maps.html?date=${dateInput}&line=${selectedLine}&room=${selectedRoom}&shift=${selectedShift}`;
-        } else if (department === "Cast House") {
-            window.location.href = `line1.html`;
+            // Redirect based on selected department
+            if (department === "Cell Lines") {
+                window.location.href = `maps.html?date=${dateInput}&line=${selectedLine}&room=${selectedRoom}&shift=${selectedShift}`;
+            } else if (department === "Cast House") {
+                window.location.href = `line1.html`;
+            }
+
+            // Clear the input fields after submission
+            clearForm();
+        });
+
+        // Function to clear the form fields
+        function clearForm() {
+            document.getElementById('badgeNo').value = '';
+            document.getElementById('dateInput').value = '';
+            document.getElementById('dropdown').selectedIndex = 0; // Reset dropdown
+            document.getElementById('lineSelect').selectedIndex = 0; // Reset line dropdown
+            document.getElementById('roomSelect').selectedIndex = 0; // Reset room dropdown
+            document.getElementById('shiftSelect').selectedIndex = 0; // Reset shift dropdown
+
+            // Hide the additional dropdowns
+            document.getElementById('line-group').style.display = 'none';
+            document.getElementById('room-group').style.display = 'none';
+            document.getElementById('shift-group').style.display = 'none';
         }
-    }).catch((error) => {
-        console.error("Error writing data: ", error);
-        alert("Failed to submit data. Please try again.");
-    });
-});
-
 
         // Open the date picker on focus
         const dateInput = document.getElementById('dateInput');
