@@ -1,0 +1,263 @@
+/* Reset some default styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* CSS Variables for easy theme management */
+:root {
+    --primary-color: #3498db; /* Default button color */
+    --primary-color-dark: #2980b9; /* Darker shade for hover */
+    --secondary-color: #5cb85c; /* Selected button color */
+    --secondary-color-dark: #4cae4c; /* Darker shade for selected button */
+    --error-color: #ff4d4d;
+    --background-color: #f4f7fa;
+    --white: #ffffff;
+    --light-grey: #f2f2f2;
+    --dark-grey: #333;
+}
+
+/* Body styling */
+body {
+    font-family: 'Roboto', sans-serif; /* Changed to a more modern font */
+    background-color: var(--background-color);
+    color: var(--dark-grey);
+    padding: 40px; /* Increased padding for better spacing */
+    line-height: 1.6;
+}
+
+/* Button styling */
+button {
+    background-color: var(--primary-color);
+    border: none;
+    color: var(--white);
+    padding: 12px 24px; /* Increased padding for larger buttons */
+    font-size: 16px;
+    cursor: pointer;
+    margin: 5px;
+    border-radius: 30px; /* More rounded corners for a modern look */
+    transition: background-color 0.3s, transform 0.2s;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+button:hover {
+    background-color: var(--primary-color-dark);
+    transform: translateY(-2px); /* Slight lift effect */
+}
+
+button:active {
+    transform: translateY(0); /* Return to original position */
+}
+
+/* Form layout */
+.form-container {
+    background-color: var(--white);
+    padding: 30px; /* More padding for a spacious feel */
+    border-radius: 12px; /* Rounded corners */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Deeper shadow */
+    margin-bottom: 30px; /* More spacing between forms */
+}
+
+/* Header Info Styling */
+.header-info {
+    display: flex;
+    justify-content: space-between; /* Distributes space between items */
+    margin-bottom: 15px; /* Adds space below the header */
+}
+
+.header-info div {
+    flex: 1; /* Each item takes equal space */
+    text-align: center; /* Center align the content */
+}
+
+.display-value {
+    font-weight: normal; /* Ensure the value is not bold */
+}
+
+/* Icon Button Styles */
+.icon-btn {
+    display: inline-flex;
+    align-items: center;
+    background-color: var(--secondary-color);
+    color: var(--white);
+    border: none;
+    border-radius: 50px; /* Rounded buttons */
+    padding: 10px 20px;
+    font-size: 16px;
+    margin: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+
+.icon-btn svg {
+    margin-right: 8px; /* Space between icon and text */
+    width: 20px;
+    height: 20px;
+    fill: var(--white); /* Icon color */
+}
+
+.icon-btn:hover {
+    background-color: var(--secondary-color-dark); /* Hover effect */
+    transform: translateY(-2px); /* Lift effect */
+}
+
+.icon-btn:active {
+    transform: translateY(0); /* Return to original position */
+}
+
+/* Highlight required fields with red border when invalid */
+input:required:invalid {
+    border-color: var(--error-color);
+    background-color: rgba(255, 77, 77, 0.1); /* Light red background */
+}
+
+/* Error message styling */
+.error-message {
+    color: var(--error-color);
+    font-size: 12px;
+    margin-top: 5px;
+    display: none; /* Initially hidden */
+}
+
+.field-group, .weight-section {
+    margin-bottom: 20px; /* Increased margin */
+}
+
+label {
+    font-weight: bold;
+    margin-bottom: 5px; /* Added margin for better spacing */
+    display: block; /* Make labels block elements */
+}
+
+input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 12px; /* Increased padding for comfort */
+    border: 1px solid #ccc;
+    border-radius: 8px; /* Rounded corners */
+    transition: border-color 0.3s;
+}
+
+/* Focus styles for input */
+input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.5); /* Subtle glow effect */
+}
+
+/* Table styling */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.data-table th, .data-table td {
+    border: 1px solid #ddd;
+    padding: 12px; /* Increased padding for table cells */
+    text-align: center;
+}
+
+.data-table th {
+    background-color: var(--light-grey);
+    font-weight: bold;
+}
+
+/* Highlight for required fields when missing data */
+input:required:invalid {
+    border-color: var(--error-color);
+}
+
+/* Navigation buttons */
+.navigation {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start; /* Align buttons to the left */
+    margin-bottom: 20px; /* Space below navigation */
+}
+
+.navigation button {
+    margin: 10px;
+}
+
+/* Active button style */
+.active {
+    background-color: var(--secondary-color) !important;
+}
+
+/* Error message styling */
+.error {
+    color: var(--error-color);
+    font-size: 12px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    body {
+        padding: 20px; /* Reduced padding on smaller screens */
+    }
+
+    button {
+        font-size: 14px; /* Smaller font size */
+        padding: 8px 16px; /* Adjusted padding */
+    }
+
+    input[type="text"], input[type="number"] {
+        padding: 10px; /* Adjusted padding for inputs */
+    }
+
+    .form-container {
+        padding: 20px; /* Adjusted padding */
+    }
+}
+
+/* Updated Potted and Cruce Section Styling */
+.potted-cruce-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two columns: Pots Tapped on the left, Cruce on the right */
+    grid-gap: 20px; /* Space between the two sections */
+    margin-top: 20px;
+}
+
+.potted-section, .cruce-section .call-section{
+    width: 100%;
+}
+
+.potted-section label, .cruce-section label ,.call-section label{
+    font-weight: bold;
+    margin-bottom: 5px;
+    display: block;
+}
+
+.potted-section .pot-fields input,
+.cruce-section input .call-section input{
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.potted-section .pot-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two pots per row */
+    grid-gap: 10px; /* Space between the pots */
+}
+.potted-section .call-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr; /* Two pots per row */
+    grid-gap: 10px; /* Space between the pots */
+}
+.cruce-section input .call-section input{
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .potted-cruce-container {
+        grid-template-columns: 1fr; /* Stack the sections vertically */
+    }
+}

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input Badge and Date</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Additional styles for the form */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-container {
+            max-width: 400px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+     
+    </style>
+    <script>
+        // Prevent right-click context menu
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+        // Disable F12 and other developer tools
+        window.addEventListener('keydown', function (event) {
+            if (event.key === 'F12' || (event.ctrlKey && event.shiftKey && event.key === 'I') || (event.ctrlKey && event.shiftKey && event.key === 'C') || (event.ctrlKey && event.key === 'U')) {
+                event.preventDefault();
+                alert("Developer tools are disabled on this page.");
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="form-container">
+        <h1>MAPS</h1>
+        <div class="form-group">
+            <label for="badgeNo">Badge Number</label>
+            <input type="text" id="badgeNo" placeholder="Enter badge number" required>
+        </div>
+        <div class="form-group">
+            <label for="dateInput">Date</label>
+            <input type="date" id="dateInput" required>
+        </div>
+        <div class="form-group">
+            <label for="dropdown">Department</label>
+            <select id="dropdown" required>
+                <option value="" disabled selected>Select an option</option>
+                <option value="Cell Lines">Cell Lines</option>
+                <option value="Cast House">Cast House</option>
+            </select>
+        </div>
+
+        <!-- New Dropdowns for Line and Room -->
+        <div class="form-group" id="line-group" style="display: none;">
+            <label for="lineSelect">Select Line</label>
+            <select id="lineSelect" required>
+                <option value="" disabled selected>Select a line</option>
+                <option value="1">Line 1</option>
+                <option value="2">Line 2</option>
+            </select>
+        </div>
+        <div class="form-group" id="room-group" style="display: none;">
+            <label for="roomSelect">Select Room</label>
+            <select id="roomSelect" required>
+                <option value="" disabled selected>Select a room</option>
+                <option value="A">A Room</option>
+                <option value="B">B Room</option>
+            </select>
+        </div>
+        <div class="form-group" id="shift-group" style="display: none;">
+            <label for="shiftSelect">Select Shift</label>
+            <select id="shiftSelect" required>
+                <option value="" disabled selected>Select shift</option>
+                <option value="Grave">Grave</option>
+                <option value="Day">Day</option>
+                <option value="Swing">Swing</option>
+            </select>
+        </div>
+
+        <button id="continue-btn">CONTINUE</button>
+    </div>
+
+    <!-- Loader Element -->
+    <div id="loader" style="display: none;">
+        <div class="loader-inner"></div>
+    </div>
+
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+        import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC_IIpwfpdoSKiNTtIeglpONUhcWD88YpA",
+            authDomain: "goiper.firebaseapp.com",
+            databaseURL: "https://goiper-default-rtdb.firebaseio.com",
+            projectId: "goiper",
+            storageBucket: "goiper.appspot.com",
+            messagingSenderId: "1037467961454",
+            appId: "1:1037467961454:web:cf9b174e7ffd0db5f83e7f",
+            measurementId: "G-MD5S9TBHLC"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Show/hide line and room dropdowns based on department selection
+        const departmentSelect = document.getElementById('dropdown');
+        const lineGroup = document.getElementById('line-group');
+        const roomGroup = document.getElementById('room-group');
+        const shiftGroup = document.getElementById('shift-group');
+
+        departmentSelect.addEventListener('change', () => {
+            if (departmentSelect.value === 'Cell Lines') {
+                lineGroup.style.display = 'block';
+                roomGroup.style.display = 'block';
+                shiftGroup.style.display ='block';
+            } else {
+                lineGroup.style.display = 'none';
+                roomGroup.style.display = 'none';
+                shiftGroup.style.display = 'none';
+            }
+        });
+
+        document.getElementById('continue-btn').addEventListener('click', () => {
+    const badgeNo = document.getElementById('badgeNo').value.trim();
+    const dateInput = document.getElementById('dateInput').value;
+    const department = document.getElementById('dropdown').value; // Get selected department
+    const selectedLine = document.getElementById('lineSelect').value; // Get selected line
+    const selectedRoom = document.getElementById('roomSelect').value; // Get selected room
+    const selectedShift = document.getElementById('shiftSelect').value; // Get selected shift
+
+    // Check if the badge number is ADMIN_CL
+    if (badgeNo === 'ADMIN_CL') {
+        window.location.href = 'activeCruces.html'; // Redirect to activeCruces.html
+        return; // No further validation needed
+    }
+
+    // Validate input for non-admin users
+    if (badgeNo === '' || dateInput === '' || department === '') {
+        alert("Please fill in all fields and select a department to proceed.");
+        return;
+    }
+
+    if (department === "Cell Lines" && (selectedLine === '' || selectedRoom === '' || selectedShift === '')) {
+        alert("Please select a line, room, and shift to proceed.");
+        return;
+    }
+
+    // Show loader and make page inactive
+    document.getElementById('loader').style.display = 'flex';
+
+    // Create a reference for the date in Firebase
+    const dbRef = ref(database, `${dateInput}`);
+
+    // Send the data to Firebase
+    set(dbRef, {
+        badgeNo: badgeNo,
+        department: department,
+        line: selectedLine, // Save the selected line
+        room: selectedRoom, // Save the selected room
+        selectedShift: selectedShift
+    }).then(() => {
+        // Redirect based on selected department
+        if (department === "Cell Lines") {
+            window.location.href = `maps.html?date=${dateInput}&line=${selectedLine}&room=${selectedRoom}&shift=${selectedShift}`;
+        } else if (department === "Cast House") {
+            window.location.href = `line1.html`;
+        }
+    }).catch((error) => {
+        console.error("Error writing data: ", error);
+        alert("Failed to submit data. Please try again.");
+    });
+});
+
+
+        // Open the date picker on focus
+        const dateInput = document.getElementById('dateInput');
+        dateInput.addEventListener('focus', () => {
+            dateInput.showPicker(); // This opens the date picker on focus
+        });
+    </script>
+</body>
+</html>

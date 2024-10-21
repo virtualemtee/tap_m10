@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Line</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+ 
+    <script>
+        // Prevent right-click context menu
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+        // Disable F12 and other developer tools
+        window.addEventListener('keydown', function (event) {
+            if (event.key === 'F12' || (event.ctrlKey && event.shiftKey && event.key === 'I') || (event.ctrlKey && event.shiftKey && event.key === 'C') || (event.ctrlKey && event.key === 'U')) {
+                event.preventDefault();
+                alert("Developer tools are disabled on this page.");
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Select Line</h1>
+        <button id="option1-btn">Line 1</button>
+        <button id="option2-btn">Line 2</button>
+    </div>
+
+    <script>
+        // Get the 'date' parameter from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const date = urlParams.get('date');
+        console.log("Received date:", date); // Console log the date to verify it's being passed
+
+        // Handle button clicks and pass the date to the next page
+        document.getElementById('option1-btn').addEventListener('click', () => {
+            if (date) {
+                window.location.href = `line1.html?date=${date}`; // Append date to line1.html
+            } else {
+                alert("No date provided!");
+            }
+        });
+
+        document.getElementById('option2-btn').addEventListener('click', () => {
+            if (date) {
+                window.location.href = `line2.html?date=${date}`; // Append date to line2.html
+            } else {
+                alert("No date provided!");
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active Cruces</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .logout-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px 20px;
+            background-color: #e62626;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .logout-btn:hover {
+            background-color: #750505;
+        }
+        form {
+            max-width: 1000px;
+            margin: auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .input-container {
+            display: inline-block;
+            width: 23%;
+            margin-right: 1%;
+            margin-bottom: 20px;
+        }
+        .input-container:nth-child(4n) {
+            margin-right: 0;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        button[type="submit"]:hover {
+            background-color: #2980b9;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Active Cruces</h1> 
+    <button class="logout-btn" onclick="window.location.href='index.html'">Log Out</button>
+
+    <form id="active-cruces-form">
+        <!-- Input Fields for Cruces -->
+        <div class="input-container">
+            <label>Cruce 1:</label>
+            <input type="text" id="cruce-1" class="cruce-input" required>
+        </div>
+        <div class="input-container">
+            <label>Cruce 2:</label>
+            <input type="text" id="cruce-2" class="cruce-input">
+        </div>
+        <div class="input-container">
+            <label>Cruce 3:</label>
+            <input type="text" id="cruce-3" class="cruce-input">
+        </div>
+        <div class="input-container">
+            <label>Cruce 4:</label>
+            <input type="text" id="cruce-4" class="cruce-input">
+        </div>
+        <div class="input-container">
+            <label>Cruce 5:</label>
+            <input type="text" id="cruce-5" class="cruce-input">
+        </div>
+        <div class="input-container">
+            <label>Cruce 6:</label>
+            <input type="text" id="cruce-6" class="cruce-input">
+        </div>
+        <div class="input-container">
+            <label>Cruce 7:</label>
+            <input type="text" id="cruce-7" class="cruce-input">
+        </div>
+        <div class="input-container">
+            <label>Cruce 8:</label>
+            <input type="text" id="cruce-8" class="cruce-input">
+        </div>
+        <div class="input-container">
+            <label>Cruce 9:</label>
+            <input type="text" id="cruce-9" class="cruce-input">
+        </div>
+        <div class="input-container">
+            <label>Cruce 10:</label>
+            <input type="text" id="cruce-10" class="cruce-input">
+        </div>
+        <div class="input-container">
+            <label>Cruce 11:</label>
+            <input type="text" id="cruce-11" class="cruce-input">
+        </div>
+        <div class="input-container">
+            <label>Cruce 12:</label>
+            <input type="text" id="cruce-12" class="cruce-input">
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit">Submit</button>
+    </form>
+
+    <script type="module">
+        // Import Firebase SDK modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getDatabase, ref, remove, set } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+        
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC_IIpwfpdoSKiNTtIeglpONUhcWD88YpA",
+            authDomain: "goiper.firebaseapp.com",
+            databaseURL: "https://goiper-default-rtdb.firebaseio.com",
+            projectId: "goiper",
+            storageBucket: "goiper.appspot.com",
+            messagingSenderId: "1037467961454",
+            appId: "1:1037467961454:web:cf9b174e7ffd0db5f83e7f",
+            measurementId: "G-MD5S9TBHLC"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
+        // Handle form submission
+        document.getElementById('active-cruces-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission behavior
+
+            // Collect "Cruce" inputs
+            const cruces = [];
+            for (let i = 1; i <= 12; i++) {
+                const cruceValue = document.getElementById(`cruce-${i}`).value.trim();
+                if (cruceValue) {
+                    cruces.push(cruceValue);
+                }
+            }
+
+            if (cruces.length === 0) {
+                alert("Please enter at least one Cruce.");
+                return;
+            }
+
+            // Reference to the "activeCruces" collection
+            const activeCrucesRef = ref(database, 'activeCruces');
+
+            // First, delete all existing data
+            remove(activeCrucesRef)
+                .then(() => {
+                    // Once deletion is successful, set new data
+                    set(activeCrucesRef, {
+                        cruces,
+                        timestamp: new Date().toISOString()
+                    })
+                    .then(() => {
+                        alert("Cruces updated successfully.");
+                        document.getElementById('active-cruces-form').reset(); // Clear form
+                    })
+                    .catch(error => {
+                        alert("Error saving new cruces: " + error.message);
+                    });
+                })
+                .catch(error => {
+                    alert("Error deleting existing cruces: " + error.message);
+                });
+        });
+    </script>
+</body>
+</html>
