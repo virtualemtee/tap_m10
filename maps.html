@@ -5,12 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M-10 Form</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .cruce-button {
+            margin: 5px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            background-color: #3498db;
+            color: white;
+            cursor: pointer;
+        }
+        .cruce-button:hover {
+            background-color: #2980b9;
+        }
+        .cruce-button.selected {
+            background-color: #2ecc71; /* Color for selected button */
+        }
+    </style>
 </head>
 <body>
     <!-- Navigation Buttons -->
     <div class="navigation">
         <button id="cell-lines-btn">Tapping Card</button>
-        <button id="entries-btn" >View Entries</button>
+        <button id="entries-btn">View Entries</button>
     </div>
 
     <div class="form-container" id="cell-lines-section">
@@ -32,7 +49,7 @@
                 </div>
             </div>
         </div>
-    
+
         <!-- Pots Tapped Section -->
         <div class="potted-section">
             <label>Pots Tapped <span class="required">*</span></label>
@@ -54,193 +71,152 @@
             <label>Call Weight <span class="required">*</span></label>
             <input type="text" id="call-weight" required>
         </div>
-    
+
         <!-- Submit Button -->
         <div class="submit-section">
             <button id="submit-btn">Submit</button>
         </div>
     </div>
-    
+
     <script type="module">
-    // Initialize Firebase app
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-import { getDatabase, ref, get, push } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
+        import { getDatabase, ref, get, push } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js";
 
-const firebaseConfig = {
-    apiKey: "AIzaSyC_IIpwfpdoSKiNTtIeglpONUhcWD88YpA",
-    authDomain: "goiper.firebaseapp.com",
-    databaseURL: "https://goiper-default-rtdb.firebaseio.com",
-    projectId: "goiper",
-    storageBucket: "goiper.appspot.com",
-    messagingSenderId: "1037467961454",
-    appId: "1:1037467961454:web:cf9b174e7ffd0db5f83e7f",
-    measurementId: "G-MD5S9TBHLC"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyC_IIpwfpdoSKiNTtIeglpONUhcWD88YpA",
+            authDomain: "goiper.firebaseapp.com",
+            databaseURL: "https://goiper-default-rtdb.firebaseio.com",
+            projectId: "goiper",
+            storageBucket: "goiper.appspot.com",
+            messagingSenderId: "1037467961454",
+            appId: "1:1037467961454:web:cf9b174e7ffd0db5f83e7f",
+            measurementId: "G-MD5S9TBHLC"
+        };
 
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
 
-let selectedCruce = ''; // To hold the selected Cruce value
+        let selectedCruce = ''; // To hold the selected Cruce value
 
-// Get URL parameters
-const urlParams = new URLSearchParams(window.location.search);
-const dateInput = urlParams.get('date'); // Get date parameter
-
-let selectedLine = ''; // To hold the selected line
-let selectedRoom = ''; // To hold the selected room
-let selectedShift = ''; // To hold the selected shift
-
-// Fetch badge number, line, room, and shift from Firebase
-get(ref(database, dateInput)).then((snapshot) => {
-    if (snapshot.exists()) {
-        const data = snapshot.val();
-        document.getElementById('badge-no').textContent = data.badgeNo || '';
-
-        // Store line, room, and shift values
-        selectedLine = data.line || '';
-        selectedRoom = data.room || '';
-        selectedShift = data.selectedShift || '';
-
-        // Display as line and room combined
-        document.getElementById('line-room').textContent = `${selectedLine} ${selectedRoom}`;
-        document.getElementById('selected-shift').textContent = selectedShift || '';
-    } else {
-        alert("No data found for this date.");
-    }
-}).catch((error) => {
-    console.error("Error fetching data: ", error);
-    alert("Error fetching data. Please try again.");
-});
-
-// Fetch active cruces and create buttons dynamically
-get(ref(database, 'activeCruces/cruces')).then((snapshot) => {
-    if (snapshot.exists()) {
-        const cruces = snapshot.val();
-        populateCruceButtons(cruces);
-    } else {
-        alert("No active cruces found.");
-    }
-}).catch((error) => {
-    console.error("Error fetching active cruces: ", error);
-});
-
-// Populate Cruce buttons
-function populateCruceButtons(cruces) {
-    const cruceButtonsContainer = document.getElementById('cruce-buttons');
-    cruceButtonsContainer.innerHTML = ''; // Clear existing buttons
-    Object.keys(cruces).forEach((key) => {
-        if (cruces[key] && typeof cruces[key] === 'string') {
-            const button = document.createElement('button');
-            button.textContent = cruces[key]; // Set button text to the cruce value
-            button.classList.add('cruce-button');
-            button.onclick = () => selectCruce(cruces[key]); // Assign click handler
-            cruceButtonsContainer.appendChild(button);
+        // Load data from local storage
+        const formData = JSON.parse(localStorage.getItem('formData'));
+        if (formData) {
+            document.getElementById('badge-no').textContent = formData.badgeNo || '';
+            document.getElementById('line-room').textContent = `${formData.line || ''} ${formData.room || ''}`;
+            document.getElementById('selected-shift').textContent = formData.shift || '';
+        } else {
+            alert("No form data found. Please complete the previous step.");
         }
-    });
-}
 
-// Select Cruce when a button is clicked
-function selectCruce(cruce) {
-    selectedCruce = cruce;
-    const buttons = document.querySelectorAll('.cruce-button');
-    buttons.forEach((button) => {
-        button.classList.remove('selected'); // Remove selected class from all buttons
-    });
-    event.target.classList.add('selected'); // Highlight selected button
-}
-
-// Event listener for the submit button
-document.getElementById('submit-btn').addEventListener('click', function (event) {
-    event.preventDefault(); // Prevent page reload
-    saveFormData();
-});
-
-// Function to save form data to Firebase
-function saveFormData() {
-    const badgeNo = document.getElementById('badge-no').textContent;
-    const potsTapped = [
-        document.getElementById('pot-1').value,
-        document.getElementById('pot-2').value,
-        document.getElementById('pot-3').value,
-        document.getElementById('pot-4').value
-    ].filter(pot => pot !== ''); // Only include filled pots
-
-    const callWeight = document.getElementById('call-weight').value;
-    const timestamp = new Date().toISOString(); // Get current timestamp
-
-    // Validate required fields
-    if (!badgeNo || !callWeight || !selectedCruce) {
-        alert("Please fill in all required fields, including selecting a Cruce.");
-        return;
-    }
-
-    if (potsTapped.length === 0) {
-        alert("No pots entered. Please enter at least one pot.");
-        return;
-    }
-
-    if (potsTapped.length === 1) {
-        const confirmContinue = confirm("One pot entered. Do you want to continue submitting?");
-        if (!confirmContinue) {
-            return;
-        }
-    }
-
-    // Create form data object
-    const formData = {
-        badgeNo,
-        line: selectedLine, // Save actual line value
-        room: selectedRoom, // Save actual room value
-        potsTapped: potsTapped.join(', '), // Save pots as a comma-separated string
-        callWeight,
-        selectedCruce,
-        selectedShift, // Save the selected shift
-        timestamp
-    };
-
-    // Push the formData under the date with a unique Firebase ID
-    const formDataRef = ref(database, `${dateInput}`);
-    push(formDataRef, formData)
-        .then(() => {
-            alert("Form submitted successfully.");
-            // Optionally, redirect to another page
-        })
-        .catch(error => {
-            alert("Error submitting form: " + error.message);
+        // Fetch active cruces from Firebase and create buttons
+        get(ref(database, 'activeCruces/cruces')).then((snapshot) => {
+            if (snapshot.exists()) {
+                const cruces = snapshot.val();
+                populateCruceButtons(cruces);
+            } else {
+                alert("No active cruces found.");
+            }
+        }).catch((error) => {
+            console.error("Error fetching active cruces: ", error);
         });
-}
 
-// Event listener for "View Entries" button
-document.getElementById('entries-btn').addEventListener('click', () => {
-    if (!selectedLine || !selectedRoom || !selectedShift) {
-        alert("Missing data: Line, Room, or Shift is not available.");
-        return;
-    }
+        // Populate the Cruce buttons
+        function populateCruceButtons(cruces) {
+            const cruceButtonsContainer = document.getElementById('cruce-buttons');
+            cruceButtonsContainer.innerHTML = ''; // Clear any existing buttons
+            Object.keys(cruces).forEach((key) => {
+                if (cruces[key] && typeof cruces[key] === 'string') { // Ensure the value is a string
+                    const button = document.createElement('button');
+                    button.textContent = cruces[key]; // Set button text to the cruce value
+                    button.classList.add('cruce-button'); // Add a class for styling
+                    button.onclick = () => selectCruce(cruces[key]); // Assign click handler
+                    cruceButtonsContainer.appendChild(button);
+                }
+            });
+        }
 
-    const url = `entries.html?date=${encodeURIComponent(dateInput)}&line=${encodeURIComponent(selectedLine)}&room=${encodeURIComponent(selectedRoom)}&shift=${encodeURIComponent(selectedShift)}`;
-    window.location.href = url;
-});
+        // Select a cruce when a button is clicked
+        function selectCruce(cruce) {
+            selectedCruce = cruce;
+            const buttons = document.querySelectorAll('.cruce-button');
+            buttons.forEach((button) => {
+                button.classList.remove('selected'); // Remove selected class from all buttons
+            });
+            event.target.classList.add('selected'); // Highlight the selected button
+        }
 
+        // Submit button event listener
+        document.getElementById('submit-btn').addEventListener('click', function (event) {
+            event.preventDefault(); // Prevent page reload on form submission
+            saveFormData();
+        });
 
+        // Function to save form data to Firebase
+        function saveFormData() {
+            const badgeNo = document.getElementById('badge-no').textContent;
+            const lineRoom = document.getElementById('line-room').textContent;
+            const potsTapped = [
+                document.getElementById('pot-1').value,
+                document.getElementById('pot-2').value,
+                document.getElementById('pot-3').value,
+                document.getElementById('pot-4').value
+            ];
+            const callWeight = document.getElementById('call-weight').value;
+            const timestamp = new Date().toISOString(); // Get the current timestamp
 
+            // Validate required fields
+            if (!badgeNo || !callWeight || !selectedCruce) {
+                alert("Please fill in all required fields, including selecting a Cruce.");
+                return;
+            }
+
+            // Check pots tapped
+            const filledPots = potsTapped.filter(pot => pot !== ''); // Filter out empty pots
+            if (filledPots.length === 0) {
+                alert("No pots entered. Please enter at least one pot.");
+                return;
+            }
+            if (filledPots.length === 1) {
+                const confirmContinue = confirm("One pot entered. Do you want to continue submitting?");
+                if (!confirmContinue) {
+                    return; 
+                }
+            }
+
+            // Save the data to the specific date collection
+            const formData = {
+                badgeNo,
+                lineRoom,
+                potsTapped: filledPots, // Send only the filled pots
+                callWeight,
+                selectedCruce, // Include selected cruce
+                timestamp // Add timestamp to the data
+            };
+
+            // Create a reference to the specific date collection
+            const dateInput = new URLSearchParams(window.location.search).get('date');
+            const formDataRef = ref(database, dateInput);
+            push(formDataRef, formData)
+                .then(() => {
+                    alert("Form submitted successfully.");
+                    // Optionally, redirect to another page
+                })
+                .catch(error => {
+                    alert("Error submitting form: " + error.message);
+                });
+        }
+
+        // Event listener for the "View Entries" button
+        document.getElementById('entries-btn').addEventListener('click', () => {
+            const dateInput = new URLSearchParams(window.location.search).get('date');
+            const selectedLine = formData.line; // Retrieve the line from local storage
+            window.location.href = `entries.html?date=${dateInput}&line=${selectedLine}`; // Redirect to entries page
+        });
+
+        // Event listener for the "Tapping Card" button
+        document.getElementById('cell-lines-btn').addEventListener('click', () => {
+            window.location.href = 'tappingCard.html'; // Redirect to Tapping Card page
+        });
     </script>
-    
-    <style>
-        .cruce-button {
-            margin: 5px;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            background-color: #3498db;
-            color: white;
-            cursor: pointer;
-        }
-        .cruce-button:hover {
-            background-color: #2980b9;
-        }
-        .cruce-button.selected {
-            background-color: #2ecc71; /* Color for selected button */
-        }
-    </style>
 </body>
 </html>
