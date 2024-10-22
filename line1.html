@@ -116,7 +116,7 @@
 
         // Function to load data from Firebase based on the selected line and the provided date
         function loadData(selectedLine, date) {
-            const dbRef = ref(database, ${date}/);  // Use the date to access the specific node in Firebase
+            const dbRef = ref(database, ${date});  // Use the date to access the specific node in Firebase
             const line1TableBody = document.querySelector('#line-1-table tbody');
             const loader = document.getElementById('loader');
 
