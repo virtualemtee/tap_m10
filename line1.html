@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Line 2 Tapping Report</title>
+    <title>Line 1 Tapping Report</title>
     <link rel="stylesheet" href="styles.css">
     <!-- Link to Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -50,10 +50,10 @@
         <button id="print-btn">Print</button>
     </div>
 
-    <h1>Line 2 Tapping Report</h1>
+    <h1>Line 1 Tapping Report</h1>
 
-    <!-- Line 2 Data Table -->
-    <table id="line-2-table" class="data-table" border="1">
+    <!-- Line 1 Data Table -->
+    <table id="line-1-table" class="data-table" border="1">
         <thead>
             <tr>
                 <th>SN</th>
@@ -71,7 +71,7 @@
             </tr>
         </thead>
         <tbody>
-            <!-- Line 2 data will be dynamically added here -->
+            <!-- Line 1 data will be dynamically added here -->
         </tbody>
     </table>
 
@@ -105,7 +105,7 @@
         // Function to load data from Firebase based on the selected line and date
         function loadData(selectedLine, date) {
             const dbRef = ref(database, `${date}/`);  // Firebase reference based on the date
-            const line1TableBody = document.querySelector('#line-2-table tbody');
+            const line1TableBody = document.querySelector('#line-1-table tbody');
 
             get(dbRef).then((snapshot) => {
                 if (snapshot.exists()) {
@@ -155,11 +155,11 @@
             });
         }
 
-        // Load Line 2 data when the page loads, using the date from the URL
+        // Load Line 1 data when the page loads, using the date from the URL
         document.addEventListener('DOMContentLoaded', () => {
             const date = getDateFromURL();  // Get the date from the URL
             if (date) {
-                loadData("1", date);  // Load data for Line 2 based on the selected date
+                loadData("1", date);  // Load data for Line 1 based on the selected date
             } else {
                 console.error("No date parameter found in the URL.");
             }
@@ -169,7 +169,7 @@
         setInterval(() => {
             const date = getDateFromURL();
             if (date) {
-                loadData("1", date);  // Refresh data for Line 2 based on the selected date
+                loadData("1", date);  // Refresh data for Line 1 based on the selected date
             }
         }, 10000);  // 10000 milliseconds = 10 seconds
 
