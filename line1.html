@@ -10,49 +10,61 @@
     <style>
         /* Print-specific styles */
         @media print {
-            /* Hide the Actions column */
-            th:nth-child(12), /* Header cell */
-            td:nth-child(12) { /* Data cells */
-                display: none;
-            }
-            /* Hide navigation buttons */
-            .navigation {
-                display: none;
-            }
-            /* Ensure the table takes the full width */
-            table {
-                width: 100%;
-                border-collapse: collapse; /* Ensure borders are collapsed */
-                font-size: 12px; /* Adjust font size for printing */
-            }
-            th, td {
-                white-space: nowrap; /* Prevent text wrapping */
-                overflow: hidden; /* Hide overflow text */
-                text-overflow: ellipsis; /* Add ellipsis for overflowing text */
-                padding: 5px; /* Add some padding */
-                border: 1px solid #000; /* Add border for better visibility */
-            }
+            th:nth-child(12), td:nth-child(12) { display: none; }
+            .navigation { display: none; }
+            table { width: 100%; border-collapse: collapse; font-size: 12px; }
+            th, td { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 5px; border: 1px solid #000; }
+        }
+
+        /* Loader styles */
+        .loader {
+            display: none; /* Hidden by default */
+            position: relative; 
+            margin-left: 10px; 
+            align-items: center;
+            font-size: 14px;
+        }
+        .loader .spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 5px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Editable fields */
+        .editable {
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            padding: 4px;
+            border-radius: 4px;
+            width: 80px;
         }
     </style>
 </head>
 <body>
     <!-- Navigation Buttons -->
     <div class="navigation">
-        <a href="index.html">
-            <button id="cell-lines-btn">Tapping Card</button>
-        </a>
-        <a href="line1.html">
-            <button id="line-1-btn" class="active">Line 1</button>
-        </a>
-        <a href="line2.html">
-            <button id="line-2-btn" >Line 2</button>
-        </a>
+        <a href="maps.html"><button id="cell-lines-btn">Tapping Card</button></a>
+        <a href="line1.html"><button id="line-1-btn" class="active">Line 1</button></a>
+        <a href="line2.html"><button id="line-2-btn">Line 2</button></a>
         <button id="print-btn">Print</button>
+        <div class="loader" id="loader">
+            <div class="spinner"></div>
+            <span>Updating Table...</span>
+        </div>
     </div>
 
     <h1>Line 1 Tapping Report</h1>
 
-    <!-- Line 1 Data Table -->
+    <!-- Line Data Table -->
     <table id="line-1-table" class="data-table" border="1">
         <thead>
             <tr>
@@ -71,16 +83,16 @@
             </tr>
         </thead>
         <tbody>
-            <!-- Line 1 data will be dynamically added here -->
+            <!-- Line data will be dynamically added here -->
         </tbody>
     </table>
 
     <script type="module">
         // Import Firebase modules
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+        import { getDatabase, ref, set, get, update, remove } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
-        // Your web app's Firebase configuration
+        // Your Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyC_IIpwfpdoSKiNTtIeglpONUhcWD88YpA",
             authDomain: "goiper.firebaseapp.com",
@@ -99,83 +111,184 @@
         // Function to get the date from the URL
         function getDateFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('date'); // Get the 'date' parameter from the URL
+            return urlParams.get('date'); // Return the 'date' parameter from the URL
         }
 
-        // Function to load data from Firebase based on the selected line and date
+        // Function to load data from Firebase based on the selected line and the provided date
         function loadData(selectedLine, date) {
-            const dbRef = ref(database, `${date}/`);  // Firebase reference based on the date
+            const dbRef = ref(database, ${date}/);  // Use the date to access the specific node in Firebase
             const line1TableBody = document.querySelector('#line-1-table tbody');
+            const loader = document.getElementById('loader');
+
+            // Show the loader
+            loader.style.display = 'flex'; // Show loader
 
             get(dbRef).then((snapshot) => {
                 if (snapshot.exists()) {
-                    line1TableBody.innerHTML = ''; // Clear any previous rows
-                    let index = 1; // Initialize serial number index
+                    let rowsData = []; // Array to hold data rows
 
                     snapshot.forEach((childSnapshot) => {
                         const data = childSnapshot.val();
 
-                        // Check if the data belongs to the selected line (Line 2)
-                        if (data.line === selectedLine) {
-                            // Format the date and time to dd/mm/yyyy and hh:mm (24-hour format)
+                        // Handle undefined values to show as empty string ("")
+                        const badgeNo = data.badgeNo || "";
+                        const line = data.line || "";
+                        const room = data.room || "";
+                        const cruceNumber = data.cruceNumber || "";
+                        const selectedShift = data.selectedShift || "";
+                        const potsTapped = data.potsTapped ? data.potsTapped.join(', ') : "";
+                        const callWeight = data.callWeight || "";
+                        const grossWeight = data.grossWeight || "";
+                        const tareWeight = data.tareWeight || "";
+
+                        // Check if the data belongs to the selected line (Line 1)
+                        if (line === selectedLine) {
                             const date = new Date(data.timestamp);
-                            const formattedDate = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}`;
-                            const formattedTime = `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+                            const formattedDate = ${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()};
+                            const formattedTime = ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')};
 
-                            const rowHTML = `
-                                <tr>
-                                    <td>${index}</td>
-                                    <td>${formattedDate} ${formattedTime}</td> <!-- Combined date and time -->
-                                    <td>${data.badgeNo}</td>
-                                    <td>${data.line}</td>
-                                    <td>${data.room}</td>
-                                    <td>${data.cruceNumber}</td>
-                                    <td>${data.selectedShift || ''}</td>
-                                    <td>${data.potsTapped.join(', ')}</td>
-                                    <td>${data.callWeight}</td>
-                                    <td>${data.grossWeight}</td>
-                                    <td>${data.tareWeight}</td>
-                                    <td>
-                                        <i class="fas fa-edit edit-btn" data-id="${childSnapshot.key}" title="Edit"></i>
-                                        <i class="fas fa-trash delete-btn" data-id="${childSnapshot.key}" title="Delete"></i>
-                                    </td>
-                                </tr>
-                            `;
-
-                            // Append the new row to the table
-                            line1TableBody.insertAdjacentHTML('beforeend', rowHTML);
-                            index++; // Increment the serial number index
+                            // Push formatted data into the rowsData array
+                            rowsData.push({
+                                index: rowsData.length + 1,
+                                timestamp: ${formattedDate} ${formattedTime},
+                                badgeNo,
+                                line,
+                                room,
+                                cruceNumber,
+                                selectedShift,
+                                potsTapped,
+                                callWeight,
+                                grossWeight,
+                                tareWeight,
+                                id: childSnapshot.key
+                            });
                         }
                     });
+
+                    // Sort data by timestamp (oldest first)
+                    rowsData.sort((a, b) => new Date(a.timestamp.split(' ')[0].split('/').reverse().join('-') + ' ' + a.timestamp.split(' ')[1]) - new Date(b.timestamp.split(' ')[0].split('/').reverse().join('-') + ' ' + b.timestamp.split(' ')[1]));
+
+                    // Clear existing table body
+                    line1TableBody.innerHTML = ''; 
+
+                    // Populate the table with sorted data
+                    rowsData.forEach((row) => {
+                        const rowHTML = 
+                            <tr data-id="${row.id}">
+                                <td>${row.index}</td>
+                                <td>${row.timestamp}</td>
+                                <td>${row.badgeNo}</td>
+                                <td>${row.line}</td>
+                                <td>${row.room}</td>
+                                <td>${row.cruceNumber}</td>
+                                <td>${row.selectedShift}</td>
+                                <td>${row.potsTapped}</td>
+                                <td>${row.callWeight}</td>
+                                <td><span class="editable">${row.grossWeight}</span></td>
+                                <td><span class="editable">${row.tareWeight}</span></td>
+                                <td>
+                                    <i class="fas fa-edit edit-btn" data-id="${row.id}" title="Edit"></i>
+                                    <i class="fas fa-trash delete-btn" data-id="${row.id}" title="Delete"></i>
+                                </td>
+                            </tr>
+                        ;
+                        line1TableBody.insertAdjacentHTML('beforeend', rowHTML);
+                    });
+
+                    // Attach event listeners to edit and delete buttons
+                    attachListeners();
                 } else {
-                    console.log("No data available for the selected date.");
+                    console.log("No data available.");
                 }
             }).catch((error) => {
                 console.error("Error loading data: ", error);
+            }).finally(() => {
+                // Hide the loader
+                loader.style.display = 'none'; 
             });
         }
 
-        // Load Line 1 data when the page loads, using the date from the URL
+        // Attach event listeners to dynamically added edit and delete buttons
+        function attachListeners() {
+            // Edit functionality
+            document.querySelectorAll('.edit-btn').forEach((editBtn) => {
+                editBtn.addEventListener('click', function() {
+                    const row = this.closest('tr');
+                    const grossWeightSpan = row.querySelector('td:nth-child(10) span');
+                    const tareWeightSpan = row.querySelector('td:nth-child(11) span');
+
+                    if (this.classList.contains('fa-edit')) {
+                        // Make the fields editable
+                        grossWeightSpan.contentEditable = 'true';
+                        tareWeightSpan.contentEditable = 'true';
+                        grossWeightSpan.classList.add('editable');
+                        tareWeightSpan.classList.add('editable');
+
+                        // Change the edit icon to save
+                        this.classList.remove('fa-edit');
+                        this.classList.add('fa-save');
+                    } else {
+                        // Save the data
+                        const updatedGrossWeight = grossWeightSpan.innerText;
+                        const updatedTareWeight = tareWeightSpan.innerText;
+                        const rowId = row.getAttribute('data-id');
+
+                        // Update the data in Firebase
+                        const entryRef = ref(database, ${getDateFromURL()}/${rowId});
+                        update(entryRef, {
+                            grossWeight: updatedGrossWeight,
+                            tareWeight: updatedTareWeight
+                        }).then(() => {
+                            // Make the fields non-editable
+                            grossWeightSpan.contentEditable = 'false';
+                            tareWeightSpan.contentEditable = 'false';
+                            grossWeightSpan.classList.remove('editable');
+                            tareWeightSpan.classList.remove('editable');
+
+                            // Change the save icon back to edit
+                            this.classList.remove('fa-save');
+                            this.classList.add('fa-edit');
+                        }).catch((error) => {
+                            console.error("Error updating data: ", error);
+                        });
+                    }
+                });
+            });
+
+            // Delete functionality
+            document.querySelectorAll('.delete-btn').forEach((deleteBtn) => {
+                deleteBtn.addEventListener('click', function() {
+                    const rowId = this.getAttribute('data-id');
+                    const entryRef = ref(database, ${getDateFromURL()}/${rowId});
+
+                    // Confirm before deleting
+                    if (confirm("Are you sure you want to delete this entry?")) {
+                        remove(entryRef).then(() => {
+                            // Remove the row from the table
+                            this.closest('tr').remove();
+                        }).catch((error) => {
+                            console.error("Error deleting entry: ", error);
+                        });
+                    }
+                });
+            });
+        }
+
+        // Load Line 1 data when the page loads, based on the date received
         document.addEventListener('DOMContentLoaded', () => {
             const date = getDateFromURL();  // Get the date from the URL
-            if (date) {
-                loadData("1", date);  // Load data for Line 1 based on the selected date
-            } else {
-                console.error("No date parameter found in the URL.");
-            }
+            loadData("1", date);  // Load data for Line 1 based on the received date
         });
 
         // Refresh the data every 10 seconds without clearing the table
         setInterval(() => {
             const date = getDateFromURL();
-            if (date) {
-                loadData("1", date);  // Refresh data for Line 1 based on the selected date
-            }
-        }, 10000);  // 10000 milliseconds = 10 seconds
+            loadData("1", date);  // Refresh data for Line 1
+        }, 360000);
 
         // Print report function
         document.getElementById('print-btn').addEventListener('click', function() {
-            window.print(); // Opens print dialog
+            window.print();
         });
     </script>
 </body>
