@@ -116,11 +116,15 @@
             
             loader.style.display = 'flex';  // Show loader while fetching data
 
+            console.log(`Fetching data from path: ${date}/`);
+            
             onValue(dbRef, (snapshot) => {
                 if (snapshot.exists()) {
                     const rows = [];  // Array to hold table rows
                     snapshot.forEach((childSnapshot) => {
                         const data = childSnapshot.val();
+                        console.log('Data Snapshot:', data); // Log data
+
                         if (data.line === line) {
                             rows.push({
                                 ...data,
