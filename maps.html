@@ -183,7 +183,18 @@
                 }
             }
 
-            // Save the data to the specific date collection
+            // Determine the correct collection based on lineRoom value
+            let collection;
+            if (lineRoom.includes("1A") || lineRoom.includes("1B")) {
+                collection = 'line 1';
+            } else if (lineRoom.includes("2A") || lineRoom.includes("2B")) {
+                collection = 'line 2';
+            } else {
+                alert("Invalid line/room. Please check the entered information.");
+                return;
+            }
+
+            // Save the data to the appropriate collection
             const formData = {
                 badgeNo,
                 lineRoom,
@@ -193,9 +204,9 @@
                 timestamp // Add timestamp to the data
             };
 
-            // Create a reference to the specific date collection
+            // Create a reference to the specific collection based on the line
             const dateInput = new URLSearchParams(window.location.search).get('date');
-            const formDataRef = ref(database, dateInput);
+            const formDataRef = ref(database, `${collection}/${dateInput}`); // Use the appropriate collection
             push(formDataRef, formData)
                 .then(() => {
                     alert("Form submitted successfully.");
